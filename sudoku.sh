@@ -35,15 +35,28 @@ export BOARD_COLOR="${FAINT_GREEN}"
 
 # Helper functions to print parts of the board.
 # 'value' is the entry at the current coordinate.
-function echoStart() { echo -n " ${START_COLOR}${value}${TPUT_RESET}"; }
-function echoGuess() { echo -n " ${GUESS_COLOR}${value}${TPUT_RESET}"; }
+function echoStart() { echo -n "${START_COLOR}${value}${TPUT_RESET} "; }
+function echoGuess() { echo -n "${GUESS_COLOR}${value}${TPUT_RESET} "; }
 function echoBlank() { echo -n "  "; }
+
+# Print a row seperator line if it is time for that.
+function echoSeperatorLine() {
+  [ $((i % 3)) -ne 0 ] || echo "-------------------------" ;
+}
+
+# Print a column seperator char if it is time for that.
+function echoSeperatorBar() {
+  [ $((j % 3)) -ne 1 ] || echo -n "| ";
+}
 
 # Print the current state of the Sudoku board
 function printBoard() {
+  i=0;
+  echoSeperatorLine;
   for i in {1..9}; do
-    echo "---------------------";
+    j=0;
     for j in {1..9}; do
+      echoSeperatorBar;
       coor="${i}${j}";
       echoFunction="";
       value="";
@@ -71,7 +84,11 @@ function printBoard() {
       # Print blank entry
       echoBlank;
     done;
-  echo;
+    # Print seperator lines
+    j=10;
+    echoSeperatorBar;
+    echo;
+    echoSeperatorLine;
   done;
 }
 
