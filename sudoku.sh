@@ -74,7 +74,7 @@ function printBoard() {
     j=0;
     for j in {1..9}; do
       echoSeperatorBar;
-      index=$(( 9 * (i-1) + (j-1) ));
+      computeIndex;
       entry=${board[${index}]};
       echoEntry;
     done;
@@ -85,6 +85,9 @@ function printBoard() {
     echoSeperatorLine;
   done;
 }
+
+# Compute index from current ${i} and ${j} values
+function computeIndex() { index=$(( 9 * (i-1) + (j-1) )); }
 
 # Main program
 printBoard
