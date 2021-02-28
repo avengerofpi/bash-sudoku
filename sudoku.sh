@@ -18,9 +18,9 @@ board=(
   "3s" "8s" "  " "  " "  " "  " "  " "  " "2s"
 )
 # Types of entry
-START_ENTRY='s';
-GUESS_ENTRY='g';
-BLANK_ENTRY=' ';
+START_ENTRY_TYPE='s';
+GUESS_ENTRY_TYPE='g';
+BLANK_ENTRY_TYPE=' ';
 
 # Coloration
 export FAINT="$(tput dim)"
@@ -43,11 +43,11 @@ function echoEntry() {
   entryValue="${entry:0:1}";
   entryType="${entry:1:1}";
   case ${entryType} in
-    ${START_ENTRY})
+    ${START_ENTRY_TYPE})
       echoStartEntry ;;
-    ${GUESS_ENTRY})
+    ${GUESS_ENTRY_TYPE})
       echoGuessEntry ;;
-    ${BLANK_ENTRY})
+    ${BLANK_ENTRY_TYPE})
       echoBlankEntry ;;
     *)
       echo "ERROR: invalid \${entry}: '${entry}'";
