@@ -17,6 +17,7 @@ board=(
   "  " "9s" "  " "2s" "  " "  " "  " "6s" "7s"
   "3s" "8s" "  " "  " "  " "  " "  " "  " "2s"
 )
+
 # Types of entry
 START_ENTRY_TYPE='s';
 GUESS_ENTRY_TYPE='g';
