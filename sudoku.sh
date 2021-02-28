@@ -30,12 +30,14 @@ export BRIGHT="$(tput dim)"
 export BRIGHT_YELLOW="${BRIGHT}$(tput setaf 11)"
 export BRIGHT_RED="${BRIGHT}$(tput setaf 1)"
 export BRIGHT_CYAN="${BRIGHT}$(tput setaf 14)"
+export BRIGHT_PURPLE="${BRIGHT}$(tput setaf 93)"
 export TPUT_RESET="$(tput sgr0)"
 
 export START_COLOR="${BRIGHT_RED}"
 export GUESS_COLOR="${BRIGHT_YELLOW}"
 export BOARD_COLOR="${FAINT_GREEN}"
 export DEBUG_COLOR="${BRIGHT_CYAN}"
+export  INFO_COLOR="${BRIGHT_PURPLE}"
 
 # Helper functions to print parts of the board.
 # 'entry' is the entry at the current coordinate.
@@ -61,6 +63,7 @@ function echoEntry() {
 
 # Debug printing
 echoDebug() { echo "${DEBUG_COLOR}DEBUG: ${@}${TPUT_RESET}"; }
+echoInfo()  { echo  "${INFO_COLOR}INFO: ${@}${TPUT_RESET}"; }
 
 # Print a row seperator line if it is time for that.
 function echoSeperatorLine() {
@@ -92,21 +95,129 @@ function printBoard() {
   done;
 }
 
-# Check whether the board is solved
-# INCOMPLETE: right now I'm just checking if there are any blank entries
-function checkBoardCompletion() {
-  solved=true;
+# Functions to check whether parts of the board are solved
+# Check row i
+function checkRow() {
+  validRow=true;
+  # Use 'checkerStr' to track values that have been used (explain this more...)
+  checkerArray=( "."  "" "" ""  "" "" ""  "" "" "" );
+  for j in {1..9}; do
+    computeIndex;
+    entry=${board[${index}]};
+    entryValue="${entry:0:1}";
+    checkerArray[${entryValue}]=".";
+  done;
+  # Index v in checkerArray is set iff v=0 (ignored) or the
+  # value 'v' occurs in row i at least once.
+  msg="Missing values from row ${i}:";
+  for v in {1..9}; do
+    if [[ "${checkerArray[${v}]}" != "." ]]; then
+      validRow=false;
+      msg="${msg} ${v}";
+    else
+      msg="${msg}  ";
+    fi;
+  done;
+  ${validRow} || echoInfo "${msg}";
+}
+
+# Check rows
+function checkRows() {
+  validRows=true;
   for i in {1..9}; do
-    for j in {1..9}; do
+    checkRow;
+    ${validRow} || { validRows=false && return 0; };
+  done;
+}
+
+# Check column j
+function checkColumn() {
+  validColumn=true;
+  # Use 'checkerStr' to track values that have been used (explain this more...)
+  checkerArray=( "."  "" "" ""  "" "" ""  "" "" "" );
+  for i in {1..9}; do
+    computeIndex;
+    entry=${board[${index}]};
+    entryValue="${entry:0:1}";
+    checkerArray[${entryValue}]=".";
+  done;
+  # Index v in checkerArray is set iff v=0 (ignored) or the
+  # value 'v' occurs in column j at least once.
+  msg="Missing values from column ${j}:";
+  for v in {1..9}; do
+    if [[ "${checkerArray[${v}]}" != "." ]]; then
+      validColumn=false;
+      msg="${msg} ${v}";
+    else
+      msg="${msg}  ";
+    fi;
+  done;
+  ${validColumn} || { echo && echoInfo "${msg}"; };
+}
+
+# Check columns
+function checkColumns() {
+  validColumns=true;
+  for j in {1..9}; do
+    checkColumn;
+    ${validColumn} || { validColumns=false && return 0; };
+  done;
+}
+
+# Check subsquare (ii, jj)
+function checkSubSquare() {
+  validSubSquare=true;
+  # Use 'checkerStr' to track values that have been used (explain this more...)
+  checkerArray=( "."  "" "" ""  "" "" ""  "" "" "" );
+  imin=$(( (ii - 1) * 3 + 1 ));
+  jmin=$(( (jj - 1) * 3 + 1 ));
+  imax=$(( imin + 3 ));
+  jmax=$(( jmin + 3 ));
+  for (( i=imin ; i - imax ; i=i + 1 )); do
+    for (( j=jmin ; j - jmax ; j=j + 1 )); do
       computeIndex;
       entry=${board[${index}]};
-      entryType="${entry:1:1}";
-      if [[ ${entryType} == ${BLANK_ENTRY_TYPE} ]]; then
-        solved=false;
-        return;
-      fi;
+      entryValue="${entry:0:1}";
+      checkerArray[${entryValue}]=".";
     done;
   done;
+  # Index v in checkerArray is set iff v=0 (ignored) or the
+  # value 'v' occurs in subsquare (ii, jj) at least once.
+  msg="Missing values from subsquare (${ii}, ${jj}):";
+  for v in {1..9}; do
+    if [[ "${checkerArray[${v}]}" != "." ]]; then
+      validSubSquare=false;
+      msg="${msg} ${v}";
+    else
+      msg="${msg}  ";
+    fi;
+  done;
+  ${validSubSquare} || { echo && echoInfo "${msg}"; };
+}
+
+# Check subsquares
+function checkSubSquares() {
+  validSubSquares=true;
+  for ii in {1..3}; do
+    for jj in {1..3}; do
+      checkSubSquare;
+      ${validSubSquare} || { validSubSquares=false && return 0; };
+    done;
+  done;
+}
+
+# Check whether the board is solved
+function checkBoardCompletion() {
+  solved=true;
+
+  checkRows;
+  ${validRows}       || { solved=false && return 0; }
+
+  checkColumns;
+  ${validColumns}    || { solved=false && return 0; }
+
+  checkSubSquares;
+  ${validSubSquares} || { solved=false && return 0; }
 }
 
 # Compute index from current ${i} and ${j} values
