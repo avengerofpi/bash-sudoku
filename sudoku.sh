@@ -28,11 +28,13 @@ export FAINT_GREEN="${FAINT}$(tput setaf 2)"
 export BRIGHT="$(tput dim)"
 export BRIGHT_YELLOW="${BRIGHT}$(tput setaf 11)"
 export BRIGHT_RED="${BRIGHT}$(tput setaf 1)"
+export BRIGHT_CYAN="${BRIGHT}$(tput setaf 14)"
 export TPUT_RESET="$(tput sgr0)"
 
 export START_COLOR="${BRIGHT_RED}"
 export GUESS_COLOR="${BRIGHT_YELLOW}"
 export BOARD_COLOR="${FAINT_GREEN}"
+export DEBUG_COLOR="${BRIGHT_CYAN}"
 
 # Helper functions to print parts of the board.
 # 'entry' is the entry at the current coordinate.
@@ -55,6 +57,9 @@ function echoEntry() {
     ;;
   esac;
 }
+
+# Debug printing
+echoDebug() { echo "${DEBUG_COLOR}DEBUG: ${@}${TPUT_RESET}"; }
 
 # Print a row seperator line if it is time for that.
 function echoSeperatorLine() {
