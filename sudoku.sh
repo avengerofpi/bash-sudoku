@@ -278,13 +278,14 @@ function processMove() {
 }
 
 # Main program
-prompt="Choose your next move. You may set a value on any blank space or overwrite any guess on a non-hint space.\
-Entries should be input as a 3-digit number.
+instructions="Choose your next move. You may set a value on any blank space or overwrite
+any guess on a non-hint space.  Entries should be input as a 3-digit number, where
   The 1st digit is the row
   The 2nd digit is the column
-  The 3rd digit is the value you want to set
-> "
+  The 3rd digit is the value you want to set";
+prompt="Enter your next move: ";
 solved=false;
+echo "${instructions}";
 while ! ${solved}; do
   printBoard
   read -p "${prompt}" move;
