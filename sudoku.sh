@@ -142,7 +142,7 @@ function checkRows() {
   validRows=true;
   for i in {1..9}; do
     checkRow;
-    ${validRow} || { validRows=false && return 0; };
+    ${validRow} || validRows=false;
   done;
 }
 
@@ -176,7 +176,7 @@ function checkColumns() {
   validColumns=true;
   for j in {1..9}; do
     checkColumn;
-    ${validColumn} || { validColumns=false && return 0; };
+    ${validColumn} || validColumns=false;
   done;
 }
 
@@ -217,7 +217,7 @@ function checkSubSquares() {
   for ii in {1..3}; do
     for jj in {1..3}; do
       checkSubSquare;
-      ${validSubSquare} || { validSubSquares=false && return 0; };
+      ${validSubSquare} || validSubSquares=false;
     done;
   done;
 }
@@ -227,13 +227,13 @@ function checkBoardCompletion() {
   solved=true;
 
   checkRows;
-  ${validRows}       || { solved=false && return 0; }
+  ${validRows}       || solved=false;
 
   checkColumns;
-  ${validColumns}    || { solved=false && return 0; }
+  ${validColumns}    || solved=false;
 
   checkSubSquares;
-  ${validSubSquares} || { solved=false && return 0; }
+  ${validSubSquares} || solved=false;
 }
 
 # Compute index from current ${i} and ${j} values
