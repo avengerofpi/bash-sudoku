@@ -239,16 +239,21 @@ function checkBoardCompletion() {
 # Compute index from current ${i} and ${j} values
 function computeIndex() { index=$(( 9 * (i-1) + (j-1) )); }
 
-# Preprocess and validate the current `move`
-DIGIT_PATTERN="^[0-9]$";
+# Preprocess and validate the structure of the current `move`
+DIGIT_PATTERN="^[1-9]$";
+VALUE_PATTERN="^[\.1-9]?$";
 function preprocessAndValidateMove() {
   validMove=true;
   i=${move:0:1};
   j=${move:1:1};
   value=${move:2:1};
-  [[ ${i}     =~ ${DIGIT_PATTERN} ]] || { echoError "invalid row"    && validMove=false; };
-  [[ ${j}     =~ ${DIGIT_PATTERN} ]] || { echoError "invalid column" && validMove=false; };
-  [[ ${value} =~ ${DIGIT_PATTERN} ]] || { echoError "invalid value"  && validMove=false; };
+  len=${#move};
+  # Check each element. For each, if invalid then log the issue and set 'validMove' to false
+  [ ${len} -gt 3 ] && { echoError "Invalid entry length (too long), try again"  && validMove=false && return 0; };
+  [ ${len} -lt 2 ] && { echoError "Invalid entry length (too short), try again" && validMove=false && return 0; };
+  [[ ${i}     =~ ${DIGIT_PATTERN} ]] || { echoError "Invalid row index ${i}"    && validMove=false; };
+  [[ ${j}     =~ ${DIGIT_PATTERN} ]] || { echoError "Invalid column index ${j}" && validMove=false; };
+  [[ ${value} =~ ${VALUE_PATTERN} ]] || { echoError "Invalid value ${value}"    && validMove=false; };
 }
 
 # Process the latest move
@@ -261,7 +266,20 @@ function processMove() {
 
   # Move was valid. Update the Sudoku board.
   computeIndex;
-  newEntry="${value}${GUESS_ENTRY_TYPE}";
+  case "${value}" in
+    "" | ".")
+      newEntryType="${BLANK_ENTRY_TYPE}";
+      value=" ";
+      ;;
+    [1-9])
+      newEntryType="${GUESS_ENTRY_TYPE}";
+      ;;
+    *)
+      # This should have been defeated, so error if it happens.
+      echoCritical "ERROR - the current move has an invalid value '${value}' that somehow passed earlier/initial validation";
+      exit 3;
+  esac;
+  newEntry="${value}${newEntryType}";
   existingEntry=${board[${index}]};
   existingEntryType=${existingEntry:1:1};
   case ${existingEntryType} in
@@ -282,7 +300,7 @@ instructions="Choose your next move. You may set a value on any blank space or o
 any guess on a non-hint space.  Entries should be input as a 3-digit number, where
   The 1st digit is the row
   The 2nd digit is the column
-  The 3rd digit is the value you want to set";
+  The 3rd digit is the value you want to set (or blank or '.' to clear a value)";
 prompt="Enter your next move: ";
 solved=false;
 echo "${instructions}";
