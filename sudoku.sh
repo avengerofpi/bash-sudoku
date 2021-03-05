@@ -36,6 +36,7 @@ function clearExtraEntryFormatting() {
     extraEntryFormatting[${index}]="";
   done;
 }
+# Run this function immediately to setup the initial empty array values
 clearExtraEntryFormatting;
 
 # Set entryFlag for the current index. Any non-empty string will do.
@@ -105,14 +106,14 @@ function echoEntry() {
   esac;
 }
 
-# Debug printing
+# Logging functions
 function echoDebug()    { echo "${DEBUG_COLOR}DEBUG:"       "${@}${TPUT_RESET}"; }
 function echoInfo()     { echo "${INFO_COLOR}INFO:"         "${@}${TPUT_RESET}"; }
 function echoWarn()     { echo "${WARN_COLOR}WARN:"         "${@}${TPUT_RESET}"; }
 function echoError()    { echo "${ERROR_COLOR}ERROR:"       "${@}${TPUT_RESET}"; }
 function echoCritical() { echo "${CRITICAL_COLOR}CRITICAL:" "${@}${TPUT_RESET}"; }
 
-# Print a row seperator line if it is time for that.
+# Print a row/subsquare seperator line if it is time for that.
 function echoSeperatorLine() {
   [ $((i % 3)) -ne 0 ] || echo "-------------------------" ;
 }
@@ -134,7 +135,7 @@ function printBoard() {
       entry=${board[${index}]};
       echoEntry;
     done;
-    # Print seperator lines
+    # Print seperator details
     j=10;
     echoSeperatorBar;
     echo;
@@ -143,18 +144,19 @@ function printBoard() {
 }
 
 # Functions to check whether parts of the board are solved
-# Check row i
+# Check row i. It is "valid" if and only if all digits 1..9 occur.
 function checkRow() {
   validRow=true;
-  # Use 'checkerStr' to track values that have been used (explain this more...)
+  # Use 'checkerArray' to track values that have been used (explain this more...)
   local checkerArray=( "."  "" "" ""  "" "" ""  "" "" "" );
   for j in {1..9}; do
     computeIndex;
     entry=${board[${index}]};
     entryValue="${entry:0:1}";
-    checkerArray[${entryValue}]="${checkerArray[${entryValue}]}${j}"; # append ${j}
+    # append ${j}
+    checkerArray[${entryValue}]="${checkerArray[${entryValue}]}${j}";
   done;
-  # Index v in checkerArray is set iff v=0 (ignored) or the
+  # Index v in checkerArray is set if and only if v=0 (ignored) or the
   # value 'v' occurs in row i at least once.
   for v in {1..9}; do
     local checkerStr="${checkerArray[${v}]}";
@@ -186,18 +188,19 @@ function checkRows() {
   echo;
 }
 
-# Check column j
+# Check column j. It is "valid" if and only if all digits 1..9 occur.
 function checkColumn() {
   validColumn=true;
-  # Use 'checkerStr' to track values that have been used (explain this more...)
+  # Use 'checkerArray' to track values that have been used (explain this more...)
   local checkerArray=( "."  "" "" ""  "" "" ""  "" "" "" );
   for i in {1..9}; do
     computeIndex;
     entry=${board[${index}]};
     entryValue="${entry:0:1}";
-    checkerArray[${entryValue}]="${checkerArray[${entryValue}]}${i}"; # append ${i}
+    # append ${i}
+    checkerArray[${entryValue}]="${checkerArray[${entryValue}]}${i}";
   done;
-  # Index v in checkerArray is set iff v=0 (ignored) or the
+  # Index v in checkerArray is set if and only if v=0 (ignored) or the
   # value 'v' occurs in column j at least once.
   for v in {1..9}; do
     local checkerStr="${checkerArray[${v}]}";
@@ -229,7 +232,7 @@ function checkColumns() {
   echo;
 }
 
-# Check subsquare (ii, jj)
+# Check subsquare (ii, jj). It is "valid" if and only if all digits 1..9 occur.
 function checkSubSquare() {
   validSubSquare=true;
   # Use 'checkerArrayI' and 'checkerArrayJ' to track values that have been used (explain this more...)
@@ -244,11 +247,12 @@ function checkSubSquare() {
       computeIndex;
       entry=${board[${index}]};
       entryValue="${entry:0:1}";
-      checkerArrayI[${entryValue}]="${checkerArrayI[${entryValue}]}${i}"; # append ${i}
-      checkerArrayJ[${entryValue}]="${checkerArrayJ[${entryValue}]}${j}"; # append ${j}
+      # append ${i} and ${j}
+      checkerArrayI[${entryValue}]="${checkerArrayI[${entryValue}]}${i}";
+      checkerArrayJ[${entryValue}]="${checkerArrayJ[${entryValue}]}${j}";
     done;
   done;
-  # Index v in checkerArrayI (or checkerArrayJ) is set iff v=0 (ignored) or the
+  # Index v in checkerArrayI (or checkerArrayJ) is set if and only if v=0 (ignored) or the
   # value 'v' occurs in subsquare (ii, jj) at least once.
   for v in {1..9}; do
     local checkerStrI="${checkerArrayI[${v}]}";
@@ -322,8 +326,6 @@ function preprocessAndValidateMove() {
 
 # Process the latest move
 function processMove() {
-  # TODO: maybe: use three inputs (i, j, value) on `read` rather than one input with post-processing
-
   # Exit function if the move was invalid
   preprocessAndValidateMove;
   ${validMove} || return 0;
@@ -377,5 +379,6 @@ while ! ${solved}; do
   echo;
 done;
 
+# Game over
 printBoard
 echo "GAME COMPLETED!";
