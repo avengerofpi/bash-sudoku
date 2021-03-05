@@ -125,17 +125,12 @@ function checkRow() {
   done;
   # Index v in checkerArray is set iff v=0 (ignored) or the
   # value 'v' occurs in row i at least once.
-  msg="Missing values from row ${i}:";
   for v in {1..9}; do
     if [[ "${checkerArray[${v}]}" != "." ]]; then
       validRow=false;
-      msg="${msg} ${v}";
     else
-      msg="${msg}  ";
     fi;
   done;
-  # Log a message if the row was invalid
-  ${validRow} || echoInfo "${msg}";
 }
 
 # Check rows
@@ -161,17 +156,12 @@ function checkColumn() {
   done;
   # Index v in checkerArray is set iff v=0 (ignored) or the
   # value 'v' occurs in column j at least once.
-  msg="Missing values from column ${j}:";
   for v in {1..9}; do
     if [[ "${checkerArray[${v}]}" != "." ]]; then
       validColumn=false;
-      msg="${msg} ${v}";
     else
-      msg="${msg}  ";
     fi;
   done;
-  # Log a message if the column was invalid
-  ${validColumn} || echoInfo "${msg}";
 }
 
 # Check columns
@@ -203,17 +193,12 @@ function checkSubSquare() {
   done;
   # Index v in checkerArray is set iff v=0 (ignored) or the
   # value 'v' occurs in subsquare (ii, jj) at least once.
-  msg="Missing values from subsquare (${ii}, ${jj}):";
   for v in {1..9}; do
     if [[ "${checkerArray[${v}]}" != "." ]]; then
       validSubSquare=false;
-      msg="${msg} ${v}";
     else
-      msg="${msg}  ";
     fi;
   done;
-  # Log a message if the subSquare was invalid
-  ${validSubSquare} || echoInfo "${msg}";
 }
 
 # Check subsquares
