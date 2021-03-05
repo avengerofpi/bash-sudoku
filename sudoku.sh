@@ -158,7 +158,6 @@ function checkRow() {
   # value 'v' occurs in row i at least once.
   for v in {1..9}; do
     local checkerStr="${checkerArray[${v}]}";
-echoDebug "v = ${v} @ index = ${checkerStr}";
     if [[ "${checkerStr}" == "" ]]; then
       # The value 'v' does not currently exist in this row
       validRow=false;
@@ -202,7 +201,6 @@ function checkColumn() {
   # value 'v' occurs in column j at least once.
   for v in {1..9}; do
     local checkerStr="${checkerArray[${v}]}";
-echoDebug "v = ${v} @ index = ${checkerStr}";
     if [[ "${checkerStr}" == "" ]]; then
       # The value 'v' does not currently exist in this row
       validColumn=false;
@@ -255,9 +253,6 @@ function checkSubSquare() {
   for v in {1..9}; do
     local checkerStrI="${checkerArrayI[${v}]}";
     local checkerStrJ="${checkerArrayJ[${v}]}";
-echoDebug "v = ${v}";
-echoDebug "  @ i_indexes = ${checkerStrI}";
-echoDebug "  @ j_indexes = ${checkerStrJ}";
     # Just check one of checkerStrI or checkerStrJ (they should correspond)
     if [[ "${checkerStrI}" == "" ]]; then
       # The value 'v' does not currently exist in this subSquare
