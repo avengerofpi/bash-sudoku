@@ -134,6 +134,7 @@ function checkRow() {
       msg="${msg}  ";
     fi;
   done;
+  # Log a message if the row was invalid
   ${validRow} || echoInfo "${msg}";
 }
 
@@ -144,6 +145,7 @@ function checkRows() {
     checkRow;
     ${validRow} || validRows=false;
   done;
+  echo;
 }
 
 # Check column j
@@ -168,7 +170,8 @@ function checkColumn() {
       msg="${msg}  ";
     fi;
   done;
-  ${validColumn} || { echo && echoInfo "${msg}"; };
+  # Log a message if the column was invalid
+  ${validColumn} || echoInfo "${msg}";
 }
 
 # Check columns
@@ -178,6 +181,7 @@ function checkColumns() {
     checkColumn;
     ${validColumn} || validColumns=false;
   done;
+  echo;
 }
 
 # Check subsquare (ii, jj)
@@ -208,7 +212,8 @@ function checkSubSquare() {
       msg="${msg}  ";
     fi;
   done;
-  ${validSubSquare} || { echo && echoInfo "${msg}"; };
+  # Log a message if the subSquare was invalid
+  ${validSubSquare} || echoInfo "${msg}";
 }
 
 # Check subsquares
@@ -220,6 +225,7 @@ function checkSubSquares() {
       ${validSubSquare} || validSubSquares=false;
     done;
   done;
+  echo;
 }
 
 # Check whether the board is solved
