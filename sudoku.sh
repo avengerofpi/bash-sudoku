@@ -4,7 +4,14 @@
 # See `man bash` or `man bash-builtins` for more details (search for 'set')
 set -eu;
 
-# Initialize board array
+# Initialize board array. The board is encoded as an 81-element single-dimensional
+# array (Bash does not support multidimensional arrays, I'm pretty sure) read off
+# accross the rows. The entries are strings where
+#   1st char is the entry value (or blank)
+#   2nd char is the entry type
+#     's' for a value from starting board
+#     'g' for a guessed value
+#     ' ' for no current value
 # Testing board borrowed from: https://www.puzzle-sudoku.com/?e=MDozMCw2MTAsOTYx
 board=(
   "5s" "  " "  " "  " "  " "  " "  " "7s" "4s"
