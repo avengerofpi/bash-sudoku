@@ -40,11 +40,17 @@ export BRIGHT_CYAN="${BRIGHT}$(tput setaf 14)"
 export BRIGHT_PURPLE="${BRIGHT}$(tput setaf 93)"
 export TPUT_RESET="$(tput sgr0)"
 
+export YELLOW_BG="$(tput setab 3)"
+
 export START_COLOR="${BRIGHT_RED}"
 export GUESS_COLOR="${BRIGHT_YELLOW}"
 export BOARD_COLOR="${FAINT_GREEN}"
-export DEBUG_COLOR="${BRIGHT_CYAN}"
-export  INFO_COLOR="${BRIGHT_PURPLE}"
+
+export    DEBUG_COLOR="${BRIGHT_CYAN}"
+export     INFO_COLOR="${BRIGHT_PURPLE}"
+export     WARN_COLOR="${BRIGHT_YELLOW}"
+export    ERROR_COLOR="${BRIGHT_RED}"
+export CRITICAL_COLOR="${YELLOW_BG}${BRIGHT_RED}"
 
 # Helper functions to print parts of the board.
 # 'entry' is the entry at the current coordinate.
@@ -62,15 +68,18 @@ function echoEntry() {
     ${BLANK_ENTRY_TYPE})
       echoBlankEntry ;;
     *)
-      echo "ERROR: invalid \${entry}: '${entry}'";
+      echoCritical "ERROR: invalid \${entry}: '${entry}'";
       exit 1;
     ;;
   esac;
 }
 
 # Debug printing
-echoDebug() { echo "${DEBUG_COLOR}DEBUG: ${@}${TPUT_RESET}"; }
-echoInfo()  { echo  "${INFO_COLOR}INFO: ${@}${TPUT_RESET}"; }
+function echoDebug()    { echo "${DEBUG_COLOR}DEBUG:"       "${@}${TPUT_RESET}"; }
+function echoInfo()     { echo "${INFO_COLOR}INFO:"         "${@}${TPUT_RESET}"; }
+function echoWarn()     { echo "${WARN_COLOR}WARN:"         "${@}${TPUT_RESET}"; }
+function echoError()    { echo "${ERROR_COLOR}ERROR:"       "${@}${TPUT_RESET}"; }
+function echoCritical() { echo "${CRITICAL_COLOR}CRITICAL:" "${@}${TPUT_RESET}"; }
 
 # Print a row seperator line if it is time for that.
 function echoSeperatorLine() {
@@ -237,9 +246,9 @@ function preprocessAndValidateMove() {
   i=${move:0:1};
   j=${move:1:1};
   value=${move:2:1};
-  [[ ${i}     =~ ${DIGIT_PATTERN} ]] || { echo "invalid row"    && validMove=false; };
-  [[ ${j}     =~ ${DIGIT_PATTERN} ]] || { echo "invalid column" && validMove=false; };
-  [[ ${value} =~ ${DIGIT_PATTERN} ]] || { echo "invalid value"  && validMove=false; };
+  [[ ${i}     =~ ${DIGIT_PATTERN} ]] || { echoError "invalid row"    && validMove=false; };
+  [[ ${j}     =~ ${DIGIT_PATTERN} ]] || { echoError "invalid column" && validMove=false; };
+  [[ ${value} =~ ${DIGIT_PATTERN} ]] || { echoError "invalid value"  && validMove=false; };
 }
 
 # Process the latest move
@@ -263,7 +272,7 @@ function processMove() {
       echo "INVALID MOVE - the selected coordinate was part of the starting board";
       ;;
     *)
-      echo "ERROR - somehow the current board has an invalid entry type at the selected coordinate";
+      echoCritical "ERROR - somehow the current board has an invalid entry type at the selected coordinate";
       exit 2;
   esac;
 }
