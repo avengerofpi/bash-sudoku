@@ -23,7 +23,7 @@ board=(
   "  " "  " "1s" "9s" "  " "  " "4s" "  " "  "
   "  " "9s" "  " "2s" "  " "  " "  " "6s" "7s"
   "3s" "8s" "  " "  " "  " "  " "  " "  " "2s"
-)
+);
 
 # Initialize an array that will be used to flag bad entries,
 #   e.g., duplicate value in the entry's row, column, or subsquare
@@ -58,30 +58,30 @@ GUESS_ENTRY_TYPE='g';
 BLANK_ENTRY_TYPE=' ';
 
 # Coloration
-export FAINT="$(tput dim)"
-export FAINT_GREEN="${FAINT}$(tput setaf 2)"
-export BRIGHT="$(tput dim)"
-export BRIGHT_YELLOW="${BRIGHT}$(tput setaf 11)"
-export BRIGHT_RED="${BRIGHT}$(tput setaf 1)"
-export BRIGHT_CYAN="${BRIGHT}$(tput setaf 14)"
-export BRIGHT_PURPLE="${BRIGHT}$(tput setaf 93)"
-export TPUT_RESET="$(tput sgr0)"
+export FAINT="$(tput dim)";
+export FAINT_GREEN="${FAINT}$(tput setaf 2)";
+export BRIGHT="$(tput dim)";
+export BRIGHT_YELLOW="${BRIGHT}$(tput setaf 11)";
+export BRIGHT_RED="${BRIGHT}$(tput setaf 1)";
+export BRIGHT_CYAN="${BRIGHT}$(tput setaf 14)";
+export BRIGHT_PURPLE="${BRIGHT}$(tput setaf 93)";
+export TPUT_RESET="$(tput sgr0)";
 
-export RED_BG="$(tput setab 9)"
-export GREEN_BG="$(tput setab 2)"
-export YELLOW_BG="$(tput setab 3)"
+export RED_BG="$(tput setab 9)";
+export GREEN_BG="$(tput setab 2)";
+export YELLOW_BG="$(tput setab 3)";
 
-export START_COLOR="${BRIGHT_RED}"
-export GUESS_COLOR="${BRIGHT_YELLOW}"
-export FLAGGED_START_HIGHLIGHT="${GREEN_BG}"
-export FLAGGED_GUESS_HIGHLIGHT="${RED_BG}"
-export BOARD_COLOR="${FAINT_GREEN}"
+export START_COLOR="${BRIGHT_RED}";
+export GUESS_COLOR="${BRIGHT_YELLOW}";
+export FLAGGED_START_HIGHLIGHT="${GREEN_BG}";
+export FLAGGED_GUESS_HIGHLIGHT="${RED_BG}";
+export BOARD_COLOR="${FAINT_GREEN}";
 
-export    DEBUG_COLOR="${BRIGHT_CYAN}"
-export     INFO_COLOR="${BRIGHT_PURPLE}"
-export     WARN_COLOR="${BRIGHT_YELLOW}"
-export    ERROR_COLOR="${BRIGHT_RED}"
-export CRITICAL_COLOR="${YELLOW_BG}${BRIGHT_RED}"
+export    DEBUG_COLOR="${BRIGHT_CYAN}";
+export     INFO_COLOR="${BRIGHT_PURPLE}";
+export     WARN_COLOR="${BRIGHT_YELLOW}";
+export    ERROR_COLOR="${BRIGHT_RED}";
+export CRITICAL_COLOR="${YELLOW_BG}${BRIGHT_RED}";
 
 # Helper functions to print parts of the board.
 # 'entry' is the entry at the current coordinate.
@@ -369,7 +369,7 @@ prompt="Enter your next move: ";
 solved=false;
 echo "${instructions}";
 while ! ${solved}; do
-  printBoard
+  printBoard;
   clearExtraEntryFormatting;
   read -p "${prompt}" move;
   processMove;
