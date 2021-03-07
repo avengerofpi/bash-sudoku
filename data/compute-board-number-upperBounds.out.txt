@@ -1,0 +1,32 @@
+Size = 0
+  Starting a = 1
+  Starting b = 100000000
+  Largest valid board number: 88000000
+Size = 1
+  Starting a = 1
+  Starting b = 100000000
+  Largest valid board number: 88000000
+Size = 2
+  Starting a = 1
+  Starting b = 100000000
+  Largest valid board number: 88000000
+Size = 3
+  Starting a = 1
+  Starting b = 100000000
+  Largest valid board number: 63000000
+Size = 4
+  Starting a = 1
+  Starting b = 100000000
+  Largest valid board number: 16000000
+Size = 5
+  Starting a = 1
+  Starting b = 100000000
+  Largest valid board number: 12000000
+Size = 6
+  Starting a = 1
+  Starting b = 100000000
+  Largest valid board number: 10000001
+Size = 7
+  Starting a = 1
+  Starting b = 100000000
+  Largest valid board number: 10000005
