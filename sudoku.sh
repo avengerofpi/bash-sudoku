@@ -185,7 +185,6 @@ function checkRows() {
     checkRow;
     ${validRow} || validRows=false;
   done;
-  echo;
 }
 
 # Check column j. It is "valid" if and only if all digits 1..9 occur.
@@ -229,7 +228,6 @@ function checkColumns() {
     checkColumn;
     ${validColumn} || validColumns=false;
   done;
-  echo;
 }
 
 # Check subsquare (ii, jj). It is "valid" if and only if all digits 1..9 occur.
@@ -287,7 +285,6 @@ function checkSubSquares() {
       ${validSubSquare} || validSubSquares=false;
     done;
   done;
-  echo;
 }
 
 # Check whether the board is solved
