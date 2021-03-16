@@ -113,6 +113,124 @@ function echoWarn()     { echo "${WARN_COLOR}WARN:"         "${@}${TPUT_RESET}";
 function echoError()    { echo "${ERROR_COLOR}ERROR:"       "${@}${TPUT_RESET}"; }
 function echoCritical() { echo "${CRITICAL_COLOR}CRITICAL:" "${@}${TPUT_RESET}"; }
 
+
+
+# Get a random board from https://www.puzzle-sudoku.com
+#baseUrl="https://www.puzzle-sudoku.com/?size=";
+URL="https://www.puzzle-sudoku.com/";
+declare -A difficultyToSizeMap difficultyToLowerBoundMap difficultyToUpperBoundMap;
+# difficultyToSizeMap
+difficultyToSizeMap["BASIC"]="0";
+difficultyToSizeMap["EASY"]="1";
+difficultyToSizeMap["INTERMEDIATE"]="2";
+difficultyToSizeMap["ADVANCED"]="3";
+difficultyToSizeMap["EXTREME"]="4";
+difficultyToSizeMap["EVIL"]="5";
+# difficultyToLowerBoundMap
+difficultyToLowerBoundMap["BASIC"]="1";
+difficultyToLowerBoundMap["EASY"]="1";
+difficultyToLowerBoundMap["INTERMEDIATE"]="1";
+difficultyToLowerBoundMap["ADVANCED"]="1";
+difficultyToLowerBoundMap["EXTREME"]="1";
+difficultyToLowerBoundMap["EVIL"]="1";
+# difficultyToUpperBoundMap
+difficultyToUpperBoundMap["BASIC"]="88000000";
+difficultyToUpperBoundMap["EASY"]="88000000";
+difficultyToUpperBoundMap["INTERMEDIATE"]="88000000";
+difficultyToUpperBoundMap["ADVANCED"]="63000000";
+difficultyToUpperBoundMap["EXTREME"]="16000000";
+difficultyToUpperBoundMap["EVIL"]="12000000";
+# Default(s)
+DEFAULT_DIFFICULTY="BASIC";
+# Choose size
+difficulty="${DEFAULT_DIFFICULTY}";
+  echoDebug ${difficultyToSizeMap[@]};
+  echoDebug ${difficultyToSizeMap["BASIC"]};
+
+  echoDebug ${difficultyToLowerBoundMap[@]};
+  echoDebug ${difficultyToLowerBoundMap["BASIC"]};
+
+  echoDebug ${difficultyToUpperBoundMap[@]};
+  echoDebug ${difficultyToUpperBoundMap["BASIC"]};
+  echoDebug ${difficulty};
+boardSize=${difficultyToSizeMap[${difficulty}]};
+lowerBound=${difficultyToLowerBoundMap[${difficulty}]};
+upperBound=${difficultyToUpperBoundMap[${difficulty}]};
+
+  echoWarn "difficulty - ${difficulty}";
+  echoWarn "boardSize  - ${boardSize}";
+  echoWarn "lowerBound - ${lowerBound}";
+  echoWarn "upperBound - ${upperBound}";
+
+boardNumber=1;
+dataRaw="specific=1&size=${boardSize}&specid=${boardNumber}";
+BOARD_LINE_REGEX="task = ";
+ENCODED_BOARD_REGEX="s@.*task = '\([_a-z0-9]\+\)'.*@\1@";
+encodedBoard=`curl -sS -X POST "${URL}" --data-raw "${dataRaw}" | grep "${BOARD_LINE_REGEX}" | sed -e "${ENCODED_BOARD_REGEX}"`;
+#DEFAULT_URL="${baseUrl}${difficultyToSizeMap[${DEFAULT_DIFFICULTY}]}";
+#encodedBoard="`curl -sS \"${url}\ | grep 'task = ' | sed -e "s@.*task = '\([_a-z0-9]\+\)'.*@\1@`";
+
+# Decode an encoded board
+#   Sample: a8c6_4_5a6a4g7_9a4k3_4b3c6_9a1e2b5c6_8_9b4b5_1b6_8c2c7a
+# Boards are encoded as the concatenation of two-char strings, which we will call digrams.
+# The first char of a digram represents the distance from  (number of empty
+# spaces after) the last starting square (or the start of the board, for the
+# first digram), where '_' is 0, 'a' is 1, 'b' is 2, etc. The second char of
+# the digram is the starting board value at the next space.
+set -v;
+encodedBoard=`curl -sS -X POST "${URL}" --data-raw "${dataRaw}" | grep "${BOARD_LINE_REGEX}" | sed -e "${ENCODED_BOARD_REGEX}"`;
+set +v;
+echoWarn "URL:                 '${URL}'";
+echoWarn "dataRaw:             '${dataRaw}'";
+echoWarn "BOARD_LINE_REGEX:    '${BOARD_LINE_REGEX}'";
+echoWarn "ENCODED_BOARD_REGEX: '${ENCODED_BOARD_REGEX}'";
+echoWarn "encodedBoard: '${encodedBoard}'";
+encodedBoardLen=${#encodedBoard};
+declare -A distances;
+distancesStr="_abcdefghijklmnopqrstuvwxyz";
+distancesStrLen=${#distancesStr};
+for (( idx=0; distancesStrLen - idx; idx += 1 )); do
+  c=${distancesStr:${idx}:1};
+  distances[${c}]=${idx};
+done;
+  #echoWarn "distances: ${distances[@]}";
+unset board;
+declare -a board;
+idxBoard=0;
+idx=0;
+# Set all entries to blank before loading start board, to ensure every position is defined
+BLANK_SPACE="  ";
+for (( idxBoard=0; 81 - idxBoard; idxBoard++ )); do
+  #echoDebug "Initializing board[idxBoard] for idxBoard = ${idxBoard}";
+  board[${idxBoard}]="${BLANK_SPACE}";
+done;
+# Load start board
+  #echoDebug "encodedBoardLen = ${encodedBoardLen}";
+# Since we always jump one extra space on processing a digram, initialize idxBoard to '-1'
+idxBoard=-1;
+for (( idx=0; encodedBoardLen - idx; idx+=2 )); do
+  digram=${encodedBoard:${idx}:2};
+  dStr=${digram:0:1};
+  d=${distances[${dStr}]};
+  value=${digram:1:1};
+  idxBoard=$((idxBoard + d + 1));
+    #echoDebug "Updating board[${idxBoard}] to '${value}'";
+    #echoDebug "  digram:   '${digram}'";
+    #echoDebug "  dStr:     '${dStr}'";
+    #echoDebug "  d:        '${d}'";
+    #echoDebug "  value:    '${value}'";
+    #echoDebug "  idxBoard: '${idxBoard}'";
+  board[${idxBoard}]="${value}${START_ENTRY_TYPE}";
+done;
+
+  echoWarn "\${board[@]}: ${board[@]}";
+  for (( idxBoard=0; 81 - idxBoard; idxBoard++ )); do
+    #echoDebug "\${board[${idxBoard}]} - '${board[${idxBoard}]}'";
+    continue;
+  done;
+
+
+
 # Print a row/subsquare seperator line if it is time for that.
 function echoSeperatorLine() {
   [ $((i % 3)) -ne 0 ] || echo "-------------------------" ;
@@ -345,6 +463,11 @@ function processMove() {
   newEntry="${value}${newEntryType}";
   existingEntry=${board[${index}]};
   existingEntryType=${existingEntry:1:1};
+    echoDebug "value:             '${value}'"
+    echoDebug "newEntryType:       '${newEntryType}'"
+    echoDebug "newEntry:          '${newEntry}'"
+    echoDebug "existingEntry:     '${existingEntry}'"
+    echoDebug "existingEntryType:  '${existingEntryType}'"
   case ${existingEntryType} in
     ${GUESS_ENTRY_TYPE} | ${BLANK_ENTRY_TYPE})
       board[index]=${newEntry};
