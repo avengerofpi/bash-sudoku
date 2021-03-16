@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Example url
+#curl -sS -X POST 'https://www.puzzle-sudoku.com/' --data-raw 'specific=1&size=0&specid=10,881,980'
+
+
 # Find the max board number for a given board size
 #   a: board number that exists
 #      lower bound to bump up iteratively
@@ -30,6 +34,7 @@ function computeLargeBoardNumber() {
     #dataRaw="specific=1&size=0&specid=${c}";
     dataRaw="specific=1&size=${s}&specid=${c}";
     res=`curl -sS -X POST 'https://www.puzzle-sudoku.com/' --data-raw "${dataRaw}" | grep "${failText}"`;
+    # | grep 'task = ' | sed -e "s@.*task = '\([_a-z0-9]\+\)'.*@\1@"
     #echo "res=${res:0:5}...";
     if [ -z "${res}" ]; then
       # Board exists; update lower bound
