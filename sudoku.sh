@@ -144,23 +144,10 @@ difficultyToUpperBoundMap["EVIL"]="12000000";
 DEFAULT_DIFFICULTY="BASIC";
 # Choose size
 difficulty="${DEFAULT_DIFFICULTY}";
-  echoDebug ${difficultyToSizeMap[@]};
-  echoDebug ${difficultyToSizeMap["BASIC"]};
-
-  echoDebug ${difficultyToLowerBoundMap[@]};
-  echoDebug ${difficultyToLowerBoundMap["BASIC"]};
-
-  echoDebug ${difficultyToUpperBoundMap[@]};
-  echoDebug ${difficultyToUpperBoundMap["BASIC"]};
-  echoDebug ${difficulty};
 boardSize=${difficultyToSizeMap[${difficulty}]};
 lowerBound=${difficultyToLowerBoundMap[${difficulty}]};
 upperBound=${difficultyToUpperBoundMap[${difficulty}]};
 
-  echoWarn "difficulty - ${difficulty}";
-  echoWarn "boardSize  - ${boardSize}";
-  echoWarn "lowerBound - ${lowerBound}";
-  echoWarn "upperBound - ${upperBound}";
 
 boardNumber=1;
 dataRaw="specific=1&size=${boardSize}&specid=${boardNumber}";
@@ -177,14 +164,7 @@ encodedBoard=`curl -sS -X POST "${URL}" --data-raw "${dataRaw}" | grep "${BOARD_
 # spaces after) the last starting square (or the start of the board, for the
 # first digram), where '_' is 0, 'a' is 1, 'b' is 2, etc. The second char of
 # the digram is the starting board value at the next space.
-set -v;
 encodedBoard=`curl -sS -X POST "${URL}" --data-raw "${dataRaw}" | grep "${BOARD_LINE_REGEX}" | sed -e "${ENCODED_BOARD_REGEX}"`;
-set +v;
-echoWarn "URL:                 '${URL}'";
-echoWarn "dataRaw:             '${dataRaw}'";
-echoWarn "BOARD_LINE_REGEX:    '${BOARD_LINE_REGEX}'";
-echoWarn "ENCODED_BOARD_REGEX: '${ENCODED_BOARD_REGEX}'";
-echoWarn "encodedBoard: '${encodedBoard}'";
 encodedBoardLen=${#encodedBoard};
 declare -A distances;
 distancesStr="_abcdefghijklmnopqrstuvwxyz";
@@ -193,7 +173,6 @@ for (( idx=0; distancesStrLen - idx; idx += 1 )); do
   c=${distancesStr:${idx}:1};
   distances[${c}]=${idx};
 done;
-  #echoWarn "distances: ${distances[@]}";
 unset board;
 declare -a board;
 idxBoard=0;
@@ -201,11 +180,9 @@ idx=0;
 # Set all entries to blank before loading start board, to ensure every position is defined
 BLANK_SPACE="  ";
 for (( idxBoard=0; 81 - idxBoard; idxBoard++ )); do
-  #echoDebug "Initializing board[idxBoard] for idxBoard = ${idxBoard}";
   board[${idxBoard}]="${BLANK_SPACE}";
 done;
 # Load start board
-  #echoDebug "encodedBoardLen = ${encodedBoardLen}";
 # Since we always jump one extra space on processing a digram, initialize idxBoard to '-1'
 idxBoard=-1;
 for (( idx=0; encodedBoardLen - idx; idx+=2 )); do
@@ -214,20 +191,8 @@ for (( idx=0; encodedBoardLen - idx; idx+=2 )); do
   d=${distances[${dStr}]};
   value=${digram:1:1};
   idxBoard=$((idxBoard + d + 1));
-    #echoDebug "Updating board[${idxBoard}] to '${value}'";
-    #echoDebug "  digram:   '${digram}'";
-    #echoDebug "  dStr:     '${dStr}'";
-    #echoDebug "  d:        '${d}'";
-    #echoDebug "  value:    '${value}'";
-    #echoDebug "  idxBoard: '${idxBoard}'";
   board[${idxBoard}]="${value}${START_ENTRY_TYPE}";
 done;
-
-  echoWarn "\${board[@]}: ${board[@]}";
-  for (( idxBoard=0; 81 - idxBoard; idxBoard++ )); do
-    #echoDebug "\${board[${idxBoard}]} - '${board[${idxBoard}]}'";
-    continue;
-  done;
 
 
 
@@ -463,11 +428,6 @@ function processMove() {
   newEntry="${value}${newEntryType}";
   existingEntry=${board[${index}]};
   existingEntryType=${existingEntry:1:1};
-    echoDebug "value:             '${value}'"
-    echoDebug "newEntryType:       '${newEntryType}'"
-    echoDebug "newEntry:          '${newEntry}'"
-    echoDebug "existingEntry:     '${existingEntry}'"
-    echoDebug "existingEntryType:  '${existingEntryType}'"
   case ${existingEntryType} in
     ${GUESS_ENTRY_TYPE} | ${BLANK_ENTRY_TYPE})
       board[index]=${newEntry};
@@ -479,6 +439,7 @@ function processMove() {
       echoCritical "ERROR - somehow the current board has an invalid entry type at the selected coordinate";
       exit 2;
   esac;
+    echoDebug 
 }
 
 # Main program
