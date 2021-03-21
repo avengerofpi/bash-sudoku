@@ -113,8 +113,6 @@ function echoWarn()     { echo "${WARN_COLOR}WARN:"         "${@}${TPUT_RESET}";
 function echoError()    { echo "${ERROR_COLOR}ERROR:"       "${@}${TPUT_RESET}"; }
 function echoCritical() { echo "${CRITICAL_COLOR}CRITICAL:" "${@}${TPUT_RESET}"; }
 
-
-
 # Get a random board from https://www.puzzle-sudoku.com
 #baseUrl="https://www.puzzle-sudoku.com/?size=";
 URL="https://www.puzzle-sudoku.com/";
@@ -146,12 +144,6 @@ difficultyToUpperBoundMap["EXTREME"]="16000000";
 difficultyToUpperBoundMap["EVIL"]="12000000";
 # Default(s)
 DEFAULT_DIFFICULTY="${difficulties[0]}";
-# Choose size
-#difficulty="${DEFAULT_DIFFICULTY}";
-#boardSize=${difficultyToSizeMap[${difficulty}]};
-#lowerBound=${difficultyToLowerBoundMap[${difficulty}]};
-#upperBound=${difficultyToUpperBoundMap[${difficulty}]};
-
 
 function printDifficultyPrompt() {
   echo "Choose your difficulty:";
@@ -166,18 +158,12 @@ function chooseDifficulty() {
   promptDifficulty="Choose your difficulty: ";
   read -p "${promptDifficulty}" difficultyNum;
 
-  # debug
-  #difficultyNum=4;
-
   if [ ${difficultyNum} -ge 0 -a ${difficultyNum} -lt ${numDifficulties} ]; then
     difficulty="${difficulties[${difficultyNum}]}";
   else
     difficulty="${difficulties[${difficultyNum}]}";
   fi;
-  #echoDebug "difficultyNum: ${difficultyNum}";
-  echoDebug "difficulty:    ${difficulty}";
 }
-
 
 function chooseBoardNumber() {
   # TODO: give user a chance to choose...right now is just random or hardcoded choice
@@ -188,30 +174,17 @@ function chooseBoardNumber() {
   # The range for RANDOM is 0..32767, but we want to use a larger range
   myRandom=$(( (1 + RANDOM) * (1 + RANDOM) * (1 + RANDOM) ))
   boardNumber=$(( (RANDOM % modulus) + boardNumLowerBound ));
-
-  # debug
-  #boardNumber=12598;
-
-    #echoWarn "boardNumLowerBound: ${boardNumLowerBound}"
-    #echoWarn "boardNumUpperBound: ${boardNumUpperBound}"
-    #echoWarn "modulus: ${modulus}"
-    echoWarn "boardNumber: ${boardNumber}"
-
   loadBoard;
 }
-
 
 unset board;
 declare -a board;
 function loadBoard() {
-#boardNumber=1;
 boardSize=${difficultyToSizeMap[${difficulty}]};
 dataRaw="specific=1&size=${boardSize}&specid=${boardNumber}";
 BOARD_LINE_REGEX="task = ";
 ENCODED_BOARD_REGEX="s@.*task = '\([_a-z0-9]\+\)'.*@\1@";
 encodedBoard=`curl -sS -X POST "${URL}" --data-raw "${dataRaw}" | grep "${BOARD_LINE_REGEX}" | sed -e "${ENCODED_BOARD_REGEX}"`;
-#DEFAULT_URL="${baseUrl}${difficultyToSizeMap[${DEFAULT_DIFFICULTY}]}";
-#encodedBoard="`curl -sS \"${url}\ | grep 'task = ' | sed -e "s@.*task = '\([_a-z0-9]\+\)'.*@\1@`";
 
 # Decode an encoded board
 #   Sample: a8c6_4_5a6a4g7_9a4k3_4b3c6_9a1e2b5c6_8_9b4b5_1b6_8c2c7a
@@ -222,8 +195,6 @@ encodedBoard=`curl -sS -X POST "${URL}" --data-raw "${dataRaw}" | grep "${BOARD_
 # the digram is the starting board value at the next space.
 encodedBoard=`curl -sS -X POST "${URL}" --data-raw "${dataRaw}" | grep "${BOARD_LINE_REGEX}" | sed -e "${ENCODED_BOARD_REGEX}"`;
 encodedBoardLen=${#encodedBoard};
-  #echoWarn "encodedBoard:    ${encodedBoard}";
-  #echoWarn "encodedBoardLen: ${encodedBoardLen}";
 # Create an array to map the "distance chars" to their distance values
 declare -A distances;
 distancesStr="_abcdefghijklmnopqrstuvwxyz";
@@ -232,10 +203,7 @@ for (( idx=0; distancesStrLen - idx; idx += 1 )); do
   c=${distancesStr:${idx}:1};
   distances[${c}]=${idx};
 done;
-#for d in "${distances[@]}"; do echoError "d: ${d}"; done;
 
-#unset board;
-#declare -a board;
 idxBoard=0;
 idx=0;
 # Set all entries to blank before loading start board, to ensure every position is defined
@@ -251,18 +219,12 @@ encodedBoardLenOffset=$(( encodedBoardLen % 2 ));
 for (( idx=0; encodedBoardLen - idx - encodedBoardLenOffset; idx+=2 )); do
   digram=${encodedBoard:${idx}:2};
   dStr=${digram:0:1};
-    #echoError "idx:    ${idx}  digram: ${digram}  dStr:   ${dStr}";
   d=${distances[${dStr}]};
   value=${digram:1:1};
   idxBoard=$((idxBoard + d + 1));
   board[${idxBoard}]="${value}${START_ENTRY_TYPE}";
 done;
-
-# debug
-#for (( idx=0; 81-idx; idx++ )); do echoWarn "board[${idx}]: '${board[${idx}]}'"; done
 } # loadBoard
-
-
 
 # Print a row/subsquare seperator line if it is time for that.
 function echoSeperatorLine() {
