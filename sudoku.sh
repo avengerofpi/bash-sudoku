@@ -119,6 +119,10 @@ function echoCritical() { echo "${CRITICAL_COLOR}CRITICAL:" "${@}${TPUT_RESET}";
 #baseUrl="https://www.puzzle-sudoku.com/?size=";
 URL="https://www.puzzle-sudoku.com/";
 declare -A difficultyToSizeMap difficultyToLowerBoundMap difficultyToUpperBoundMap;
+declare -a difficulties;
+# Difficulties
+difficulties=( "BASIC" "EASY" "INTERMEDIATE" "ADVANCED" "EXTREME" "EVIL" );
+numDifficulties=${#difficulties[@]};
 # difficultyToSizeMap
 difficultyToSizeMap["BASIC"]="0";
 difficultyToSizeMap["EASY"]="1";
@@ -141,15 +145,67 @@ difficultyToUpperBoundMap["ADVANCED"]="63000000";
 difficultyToUpperBoundMap["EXTREME"]="16000000";
 difficultyToUpperBoundMap["EVIL"]="12000000";
 # Default(s)
-DEFAULT_DIFFICULTY="BASIC";
+DEFAULT_DIFFICULTY="${difficulties[0]}";
 # Choose size
-difficulty="${DEFAULT_DIFFICULTY}";
+#difficulty="${DEFAULT_DIFFICULTY}";
+#boardSize=${difficultyToSizeMap[${difficulty}]};
+#lowerBound=${difficultyToLowerBoundMap[${difficulty}]};
+#upperBound=${difficultyToUpperBoundMap[${difficulty}]};
+
+
+function printDifficultyPrompt() {
+  echo "Choose your difficulty:";
+  local difficulty;
+  for (( idx=0; numDifficulties - idx; idx++ )); do
+    difficulty="${difficulties[${idx}]}";
+    echo "  ${idx}: ${difficulty}";
+  done;
+}
+function chooseDifficulty() {
+  printDifficultyPrompt;
+  promptDifficulty="Choose your difficulty: ";
+  read -p "${promptDifficulty}" difficultyNum;
+
+  # debug
+  #difficultyNum=4;
+
+  if [ ${difficultyNum} -ge 0 -a ${difficultyNum} -lt ${numDifficulties} ]; then
+    difficulty="${difficulties[${difficultyNum}]}";
+  else
+    difficulty="${difficulties[${difficultyNum}]}";
+  fi;
+  #echoDebug "difficultyNum: ${difficultyNum}";
+  echoDebug "difficulty:    ${difficulty}";
+}
+
+
+function chooseBoardNumber() {
+  # TODO: give user a chance to choose...right now is just random or hardcoded choice
+
+  boardNumLowerBound=${difficultyToLowerBoundMap[${difficulty}]};
+  boardNumUpperBound=${difficultyToUpperBoundMap[${difficulty}]};
+  modulus=$(( boardNumUpperBound - boardNumLowerBound + 1 ));
+  # The range for RANDOM is 0..32767, but we want to use a larger range
+  myRandom=$(( (1 + RANDOM) * (1 + RANDOM) * (1 + RANDOM) ))
+  boardNumber=$(( (RANDOM % modulus) + boardNumLowerBound ));
+
+  # debug
+  #boardNumber=12598;
+
+    #echoWarn "boardNumLowerBound: ${boardNumLowerBound}"
+    #echoWarn "boardNumUpperBound: ${boardNumUpperBound}"
+    #echoWarn "modulus: ${modulus}"
+    echoWarn "boardNumber: ${boardNumber}"
+
+  loadBoard;
+}
+
+
+unset board;
+declare -a board;
+function loadBoard() {
+#boardNumber=1;
 boardSize=${difficultyToSizeMap[${difficulty}]};
-lowerBound=${difficultyToLowerBoundMap[${difficulty}]};
-upperBound=${difficultyToUpperBoundMap[${difficulty}]};
-
-
-boardNumber=1;
 dataRaw="specific=1&size=${boardSize}&specid=${boardNumber}";
 BOARD_LINE_REGEX="task = ";
 ENCODED_BOARD_REGEX="s@.*task = '\([_a-z0-9]\+\)'.*@\1@";
@@ -166,6 +222,9 @@ encodedBoard=`curl -sS -X POST "${URL}" --data-raw "${dataRaw}" | grep "${BOARD_
 # the digram is the starting board value at the next space.
 encodedBoard=`curl -sS -X POST "${URL}" --data-raw "${dataRaw}" | grep "${BOARD_LINE_REGEX}" | sed -e "${ENCODED_BOARD_REGEX}"`;
 encodedBoardLen=${#encodedBoard};
+  #echoWarn "encodedBoard:    ${encodedBoard}";
+  #echoWarn "encodedBoardLen: ${encodedBoardLen}";
+# Create an array to map the "distance chars" to their distance values
 declare -A distances;
 distancesStr="_abcdefghijklmnopqrstuvwxyz";
 distancesStrLen=${#distancesStr};
@@ -173,8 +232,10 @@ for (( idx=0; distancesStrLen - idx; idx += 1 )); do
   c=${distancesStr:${idx}:1};
   distances[${c}]=${idx};
 done;
-unset board;
-declare -a board;
+#for d in "${distances[@]}"; do echoError "d: ${d}"; done;
+
+#unset board;
+#declare -a board;
 idxBoard=0;
 idx=0;
 # Set all entries to blank before loading start board, to ensure every position is defined
@@ -185,14 +246,21 @@ done;
 # Load start board
 # Since we always jump one extra space on processing a digram, initialize idxBoard to '-1'
 idxBoard=-1;
-for (( idx=0; encodedBoardLen - idx; idx+=2 )); do
+# In case the final "digram" is just the 'dStr' (no starting value in row 9/column 9)
+encodedBoardLenOffset=$(( encodedBoardLen % 2 ));
+for (( idx=0; encodedBoardLen - idx - encodedBoardLenOffset; idx+=2 )); do
   digram=${encodedBoard:${idx}:2};
   dStr=${digram:0:1};
+    #echoError "idx:    ${idx}  digram: ${digram}  dStr:   ${dStr}";
   d=${distances[${dStr}]};
   value=${digram:1:1};
   idxBoard=$((idxBoard + d + 1));
   board[${idxBoard}]="${value}${START_ENTRY_TYPE}";
 done;
+
+# debug
+#for (( idx=0; 81-idx; idx++ )); do echoWarn "board[${idx}]: '${board[${idx}]}'"; done
+} # loadBoard
 
 
 
@@ -439,22 +507,23 @@ function processMove() {
       echoCritical "ERROR - somehow the current board has an invalid entry type at the selected coordinate";
       exit 2;
   esac;
-    echoDebug 
 }
 
 # Main program
-instructions="Choose your next move. You may set a value on any blank space or overwrite
+instructionsMove="Choose your next move. You may set a value on any blank space or overwrite
 any guess on a non-hint space.  Entries should be input as a 3-digit number, where
   The 1st digit is the row
   The 2nd digit is the column
   The 3rd digit is the value you want to set (or blank or '.' to clear a value)";
-prompt="Enter your next move: ";
+promptMove="Enter your next move: ";
+chooseDifficulty;
+chooseBoardNumber;
 solved=false;
-echo "${instructions}";
+echo "${instructionsMove}";
 while ! ${solved}; do
   printBoard;
   clearExtraEntryFormatting;
-  read -p "${prompt}" move;
+  read -p "${promptMove}" move;
   processMove;
   checkBoardCompletion;
   echo;
