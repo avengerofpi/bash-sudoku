@@ -13,6 +13,7 @@ set -eu;
 #     'g' for a guessed value
 #     ' ' for no current value
 # Testing board borrowed from: https://www.puzzle-sudoku.com/?e=MDozMCw2MTAsOTYx
+function initTestBoard() {
 board=(
   "5s" "  " "  " "  " "  " "  " "  " "7s" "4s"
   "6s" "1s" "  " "  " "  " "7s" "  " "8s" "  "
@@ -24,6 +25,7 @@ board=(
   "  " "9s" "  " "2s" "  " "  " "  " "6s" "7s"
   "3s" "8s" "  " "  " "  " "  " "  " "  " "2s"
 );
+}
 
 # Initialize an array that will be used to flag bad entries,
 #   e.g., duplicate value in the entry's row, column, or subsquare
