@@ -61,30 +61,39 @@ GUESS_ENTRY_TYPE='g';
 BLANK_ENTRY_TYPE=' ';
 
 # Coloration
-export FAINT="$(tput dim)";
-export FAINT_GREEN="${FAINT}$(tput setaf 2)";
-export BRIGHT="$(tput dim)";
-export BRIGHT_YELLOW="${BRIGHT}$(tput setaf 11)";
-export BRIGHT_RED="${BRIGHT}$(tput setaf 1)";
-export BRIGHT_CYAN="${BRIGHT}$(tput setaf 14)";
-export BRIGHT_PURPLE="${BRIGHT}$(tput setaf 93)";
 export TPUT_RESET="$(tput sgr0)";
 
-export RED_BG="$(tput setab 9)";
-export GREEN_BG="$(tput setab 2)";
+export  FAINT="$(tput dim)";
+export BRIGHT="$(tput bold)";
+
+export    RED_FG="$(tput setaf  1)";
+export  GREEN_FG="$(tput setaf  2)";
+export YELLOW_FG="$(tput setaf 11)";
+export   CYAN_FG="$(tput setaf 14)";
+export PURPLE_FG="$(tput setaf 93)";
+
+export BRIGHT_RED_FG="${BRIGHT}${RED_FG}";
+export FAINT_GREEN_FG="${FAINT}${GREEN_FG}";
+export BRIGHT_YELLOW_FG="${BRIGHT}${YELLOW_FG}";
+export BRIGHT_CYAN_FG="${BRIGHT}${CYAN_FG}";
+export BRIGHT_PURPLE_FG="${BRIGHT}${PURPLE_FG}";
+
+export    RED_BG="$(tput setab 9)";
+export  GREEN_BG="$(tput setab 2)";
 export YELLOW_BG="$(tput setab 3)";
 
-export START_COLOR="${BRIGHT_RED}";
-export GUESS_COLOR="${BRIGHT_YELLOW}";
+export START_COLOR="${BRIGHT_RED_FG}";
+export GUESS_COLOR="${BRIGHT_YELLOW_FG}";
+export BOARD_COLOR="${FAINT_GREEN_FG}";
+
 export FLAGGED_START_HIGHLIGHT="${GREEN_BG}";
 export FLAGGED_GUESS_HIGHLIGHT="${RED_BG}";
-export BOARD_COLOR="${FAINT_GREEN}";
 
-export    DEBUG_COLOR="${BRIGHT_CYAN}";
-export     INFO_COLOR="${BRIGHT_PURPLE}";
-export     WARN_COLOR="${BRIGHT_YELLOW}";
-export    ERROR_COLOR="${BRIGHT_RED}";
-export CRITICAL_COLOR="${YELLOW_BG}${BRIGHT_RED}";
+export    DEBUG_COLOR="${BRIGHT_CYAN_FG}";
+export     INFO_COLOR="${BRIGHT_PURPLE_FG}";
+export     WARN_COLOR="${BRIGHT_YELLOW_FG}";
+export    ERROR_COLOR="${BRIGHT_RED_FG}";
+export CRITICAL_COLOR="${YELLOW_BG}${BRIGHT_RED_FG}";
 
 # Helper functions to print parts of the board.
 # 'entry' is the entry at the current coordinate.
