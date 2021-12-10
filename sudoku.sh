@@ -471,6 +471,25 @@ function preprocessAndValidateMove() {
 
 # Process the latest move
 function processMove() {
+  # If move is 'help' then print the instructions again
+  if [ "${move}" == 'help' -o "${move}" == "h" ]; then
+    printInstructions;
+    return;
+  fi
+
+  # If move is 'reset' then reset the board to starting state (remove all guesses)
+  if [ "${move}" == 'reset' -o "${move}" == "r" ]; then
+    echo "Reseting the board to its starting state.";
+    resetBoard;
+    return;
+  fi
+
+  # If move is 'exit' then end the game
+  if [ "${move}" == 'exit' -o "${move}" == "e" ]; then
+    echo "Ending the game early.";
+    exit 0;
+  fi
+
   # Exit function if the move was invalid
   preprocessAndValidateMove;
   ${validMove} || return 0;
@@ -504,6 +523,11 @@ function processMove() {
       echoCritical "ERROR - somehow the current board has an invalid entry type at the selected coordinate";
       exit 2;
   esac;
+}
+
+# Reset board
+function resetBoard() {
+  loadBoard;
 }
 
 # Print instructions / help
