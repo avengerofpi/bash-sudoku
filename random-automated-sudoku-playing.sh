@@ -12,9 +12,12 @@ function randomSudokuMove() {
 
 # Generate a sequence of random Sudoku moves, possibly with a delay between moves
 function playRandomSudokuMoves() {
+    # Choose difficulty
+    seq 0 5 | shuf | head -1;
+    # Start random plays. Continue till success (unlikely) or process is killed
     while true; do
         randomSudokuMove;
-        sleep 2;
+        sleep 0.5;
     done
 }
 
