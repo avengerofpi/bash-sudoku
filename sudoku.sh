@@ -94,6 +94,7 @@ export     INFO_COLOR="${BRIGHT_PURPLE_FG}";
 export     WARN_COLOR="${BRIGHT_YELLOW_FG}";
 export    ERROR_COLOR="${BRIGHT_RED_FG}";
 export CRITICAL_COLOR="${YELLOW_BG}${BRIGHT_RED_FG}";
+  HEADER_COLOR="${YELLOW_BG}${BRIGHT_RED}";
 
 # Helper functions to print parts of the board.
 # 'entry' is the entry at the current coordinate.
@@ -123,6 +124,7 @@ function echoInfo()     { echo "${INFO_COLOR}INFO:"         "${@}${TPUT_RESET}";
 function echoWarn()     { echo "${WARN_COLOR}WARN:"         "${@}${TPUT_RESET}"; }
 function echoError()    { echo "${ERROR_COLOR}ERROR:"       "${@}${TPUT_RESET}"; }
 function echoCritical() { echo "${CRITICAL_COLOR}CRITICAL:" "${@}${TPUT_RESET}"; }
+function echoHeader()   {                     echo -e "${HEADER_COLOR}"            "${@}${TPUT_RESET}"; }
 
 # Get a random board from https://www.puzzle-sudoku.com
 #baseUrl="https://www.puzzle-sudoku.com/?size=";
@@ -493,17 +495,30 @@ function processMove() {
   esac;
 }
 
+# Print instructions / help
+function printInstructions() {
+  for line in "${instructionsMove[@]}"; do
+    echoHeader "${line}";
+  done
+}
+
 # Main program
-instructionsMove="Choose your next move. You may set a value on any blank space or overwrite
-any guess on a non-hint space.  Entries should be input as a 3-digit number, where
-  The 1st digit is the row
-  The 2nd digit is the column
-  The 3rd digit is the value you want to set (or blank or '.' to clear a value)";
+instructionsMove=(
+  "Choose your next move. You may set a value on any blank space or overwrite",
+  "any guess on a non-hint space.  Entries should be input as a 3-digit number, where",
+  "  The 1st digit is the row",
+  "  The 2nd digit is the column",
+  "  The 3rd digit is the value you want to set (or blank or '.' to clear a value)",
+  "Or choose",
+  "  'help'  or 'h' to re-print this message",
+  "  'reset' or 'r' to reset the board",
+  "  'exit'  or 'x' to end the current game"
+);
 promptMove="Enter your next move: ";
 chooseDifficulty;
 chooseBoardNumber;
 solved=false;
-echo "${instructionsMove}";
+printInstructions;
 while ! ${solved}; do
   printBoard;
   clearExtraEntryFormatting;
