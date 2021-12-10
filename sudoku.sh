@@ -4,6 +4,13 @@
 # See `man bash` or `man bash-builtins` for more details (search for 'set')
 set -eu;
 
+# Logging levels
+   debug=false;
+    info=true;
+    warn=true;
+   error=true;
+critical=true;
+
 # Initialize board array. The board is encoded as an 81-element single-dimensional
 # array (Bash does not support multidimensional arrays, I'm pretty sure) read off
 # accross the rows. The entries are strings where
@@ -61,39 +68,39 @@ GUESS_ENTRY_TYPE='g';
 BLANK_ENTRY_TYPE=' ';
 
 # Coloration
-export TPUT_RESET="$(tput sgr0)";
+TPUT_RESET="$(tput sgr0)";
 
-export  FAINT="$(tput dim)";
-export BRIGHT="$(tput bold)";
+ FAINT="$(tput dim)";
+BRIGHT="$(tput bold)";
 
-export    RED_FG="$(tput setaf  1)";
-export  GREEN_FG="$(tput setaf  2)";
-export YELLOW_FG="$(tput setaf 11)";
-export   CYAN_FG="$(tput setaf 14)";
-export PURPLE_FG="$(tput setaf 93)";
+   RED_FG="$(tput setaf  1)";
+ GREEN_FG="$(tput setaf  2)";
+YELLOW_FG="$(tput setaf 11)";
+  CYAN_FG="$(tput setaf 14)";
+PURPLE_FG="$(tput setaf 93)";
 
-export BRIGHT_RED_FG="${BRIGHT}${RED_FG}";
-export FAINT_GREEN_FG="${FAINT}${GREEN_FG}";
-export BRIGHT_YELLOW_FG="${BRIGHT}${YELLOW_FG}";
-export BRIGHT_CYAN_FG="${BRIGHT}${CYAN_FG}";
-export BRIGHT_PURPLE_FG="${BRIGHT}${PURPLE_FG}";
+BRIGHT_RED_FG="${BRIGHT}${RED_FG}";
+FAINT_GREEN_FG="${FAINT}${GREEN_FG}";
+BRIGHT_YELLOW_FG="${BRIGHT}${YELLOW_FG}";
+BRIGHT_CYAN_FG="${BRIGHT}${CYAN_FG}";
+BRIGHT_PURPLE_FG="${BRIGHT}${PURPLE_FG}";
 
-export    RED_BG="$(tput setab 9)";
-export  GREEN_BG="$(tput setab 2)";
-export YELLOW_BG="$(tput setab 3)";
+   RED_BG="$(tput setab 9)";
+ GREEN_BG="$(tput setab 2)";
+YELLOW_BG="$(tput setab 3)";
 
-export START_COLOR="${BRIGHT_RED_FG}";
-export GUESS_COLOR="${BRIGHT_YELLOW_FG}";
-export BOARD_COLOR="${FAINT_GREEN_FG}";
+START_COLOR="${BRIGHT_RED_FG}";
+GUESS_COLOR="${BRIGHT_YELLOW_FG}";
+BOARD_COLOR="${FAINT_GREEN_FG}";
 
-export FLAGGED_START_HIGHLIGHT="${GREEN_BG}";
-export FLAGGED_GUESS_HIGHLIGHT="${RED_BG}";
+FLAGGED_START_HIGHLIGHT="${GREEN_BG}";
+FLAGGED_GUESS_HIGHLIGHT="${RED_BG}";
 
-export    DEBUG_COLOR="${BRIGHT_CYAN_FG}";
-export     INFO_COLOR="${BRIGHT_PURPLE_FG}";
-export     WARN_COLOR="${BRIGHT_YELLOW_FG}";
-export    ERROR_COLOR="${BRIGHT_RED_FG}";
-export CRITICAL_COLOR="${YELLOW_BG}${BRIGHT_RED_FG}";
+   DEBUG_COLOR="${BRIGHT_CYAN_FG}";
+    INFO_COLOR="${BRIGHT_PURPLE_FG}";
+    WARN_COLOR="${BRIGHT_YELLOW_FG}";
+   ERROR_COLOR="${BRIGHT_RED_FG}";
+CRITICAL_COLOR="${YELLOW_BG}${BRIGHT_RED_FG}";
   HEADER_COLOR="${YELLOW_BG}${BRIGHT_RED}";
 
 # Helper functions to print parts of the board.
@@ -119,11 +126,11 @@ function echoEntry() {
 }
 
 # Logging functions
-function echoDebug()    { echo "${DEBUG_COLOR}DEBUG:"       "${@}${TPUT_RESET}"; }
-function echoInfo()     { echo "${INFO_COLOR}INFO:"         "${@}${TPUT_RESET}"; }
-function echoWarn()     { echo "${WARN_COLOR}WARN:"         "${@}${TPUT_RESET}"; }
-function echoError()    { echo "${ERROR_COLOR}ERROR:"       "${@}${TPUT_RESET}"; }
-function echoCritical() { echo "${CRITICAL_COLOR}CRITICAL:" "${@}${TPUT_RESET}"; }
+function echoDebug()    { if $debug;     then echo -e "${DEBUG_COLOR}DEBUG:"       "${@}${TPUT_RESET}"; fi; }
+function echoInfo()     { if $info;      then echo -e "${INFO_COLOR}INFO:"         "${@}${TPUT_RESET}"; fi; }
+function echoWarn()     { if $warn;      then echo -e "${WARN_COLOR}WARN:"         "${@}${TPUT_RESET}"; fi; }
+function echoError()    { if $error;     then echo -e "${ERROR_COLOR}ERROR:"       "${@}${TPUT_RESET}"; fi; }
+function echoCritical() { if $critical;  then echo -e "${CRITICAL_COLOR}CRITICAL:" "${@}${TPUT_RESET}"; fi; }
 function echoHeader()   {                     echo -e "${HEADER_COLOR}"            "${@}${TPUT_RESET}"; }
 
 # Get a random board from https://www.puzzle-sudoku.com
