@@ -183,6 +183,7 @@ function chooseDifficulty() {
   else
     difficulty="${difficulties[${difficultyNum}]}";
   fi;
+  echoDebug "difficulty: ${difficulty}";
 }
 
 function chooseBoardNumber() {
@@ -219,6 +220,7 @@ encodedBoard=`curl -sS -X POST "${URL}" --data-raw "${dataRaw}" | grep "${BOARD_
 #   first 'digram' is just that value char (e.g., '8' instead of '_8').
 
 encodedBoardLen=${#encodedBoard};
+echoDebug "encodedBoard: '${encodedBoard}'"
 # Create an array to map the "distance chars" to their distance values
 declare -A distances;
 distancesStr="_abcdefghijklmnopqrstuvwxyz";
@@ -246,10 +248,12 @@ firstChar="${encodedBoard:0:1}"
 if [[ "${firstChar}" =~ [1-9] ]]; then
   encodedBoard="_${encodedBoard}"
 fi
+echoDebug "encodedBoard: '${encodedBoard}' (after checking first entry)"
 
 for (( idx=0; encodedBoardLen - idx - encodedBoardLenOffset; idx+=2 )); do
   digram=${encodedBoard:${idx}:2};
   dStr=${digram:0:1};
+  echoDebug "dStr: '${dStr}'";
   d=${distances[${dStr}]};
   value=${digram:1:1};
   idxBoard=$((idxBoard + d + 1));
