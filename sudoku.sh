@@ -515,6 +515,7 @@ function processMove() {
   case ${existingEntryType} in
     ${GUESS_ENTRY_TYPE} | ${BLANK_ENTRY_TYPE})
       board[index]=${newEntry};
+      echo;
       ;;
     ${START_ENTRY_TYPE})
       echo "INVALID MOVE - the selected coordinate was part of the starting board";
@@ -560,7 +561,6 @@ while ! ${solved}; do
   read -p "${promptMove}" move;
   processMove;
   checkBoardCompletion;
-  echo;
 done;
 
 # Game over
