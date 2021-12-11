@@ -201,64 +201,64 @@ function chooseBoardNumber() {
 unset board;
 declare -a board;
 function loadBoard() {
-boardSize=${difficultyToSizeMap[${difficulty}]};
-dataRaw="specific=1&size=${boardSize}&specid=${boardNumber}";
-BOARD_LINE_REGEX="task = ";
-ENCODED_BOARD_REGEX="s@.*task = '\([_a-z0-9]\+\)'.*@\1@";
-encodedBoard=`curl -sS -X POST "${URL}" --data-raw "${dataRaw}" | grep "${BOARD_LINE_REGEX}" | sed -e "${ENCODED_BOARD_REGEX}"`;
-#encodedBoard="b1c3b9_3j4_6a2_1b2c8e6a7_2e7_1a5b6_5a3d8b9c6f9c3a";
-#encodedBoard="8b4f2a6b5g7d5_1b6d6b1_9b2b4_8c3c5b2i6_7_1c7b3b";
+  boardSize=${difficultyToSizeMap[${difficulty}]};
+  dataRaw="specific=1&size=${boardSize}&specid=${boardNumber}";
+  BOARD_LINE_REGEX="task = ";
+  ENCODED_BOARD_REGEX="s@.*task = '\([_a-z0-9]\+\)'.*@\1@";
+  encodedBoard=`curl -sS -X POST "${URL}" --data-raw "${dataRaw}" | grep "${BOARD_LINE_REGEX}" | sed -e "${ENCODED_BOARD_REGEX}"`;
+  #encodedBoard="b1c3b9_3j4_6a2_1b2c8e6a7_2e7_1a5b6_5a3d8b9c6f9c3a";
+  #encodedBoard="8b4f2a6b5g7d5_1b6d6b1_9b2b4_8c3c5b2i6_7_1c7b3b";
 
-# Decode an encoded board
-#   Sample: a8c6_4_5a6a4g7_9a4k3_4b3c6_9a1e2b5c6_8_9b4b5_1b6_8c2c7a
-# Boards are encoded as the concatenation of two-char strings, which we will call digrams.
-# The first char of a digram represents the distance from  (number of empty
-# spaces after) the last starting square (or the start of the board, for the
-# first digram), where '_' is 0, 'a' is 1, 'b' is 2, etc. The second char of
-# the digram is the starting board value at the next space.
-#   Note: The one exception is if the first square has a value, in which case the
-#   first 'digram' is just that value char (e.g., '8' instead of '_8').
+  # Decode an encoded board
+  #   Sample: a8c6_4_5a6a4g7_9a4k3_4b3c6_9a1e2b5c6_8_9b4b5_1b6_8c2c7a
+  # Boards are encoded as the concatenation of two-char strings, which we will call digrams.
+  # The first char of a digram represents the distance from  (number of empty
+  # spaces after) the last starting square (or the start of the board, for the
+  # first digram), where '_' is 0, 'a' is 1, 'b' is 2, etc. The second char of
+  # the digram is the starting board value at the next space.
+  #   Note: The one exception is if the first square has a value, in which case the
+  #   first 'digram' is just that value char (e.g., '8' instead of '_8').
 
-encodedBoardLen=${#encodedBoard};
-echoDebug "encodedBoard: '${encodedBoard}'"
-# Create an array to map the "distance chars" to their distance values
-declare -A distances;
-distancesStr="_abcdefghijklmnopqrstuvwxyz";
-distancesStrLen=${#distancesStr};
-for (( idx=0; distancesStrLen - idx; idx += 1 )); do
-  c=${distancesStr:${idx}:1};
-  distances[${c}]=${idx};
-done;
+  encodedBoardLen=${#encodedBoard};
+  echoDebug "encodedBoard: '${encodedBoard}'"
+  # Create an array to map the "distance chars" to their distance values
+  declare -A distances;
+  distancesStr="_abcdefghijklmnopqrstuvwxyz";
+  distancesStrLen=${#distancesStr};
+  for (( idx=0; distancesStrLen - idx; idx += 1 )); do
+    c=${distancesStr:${idx}:1};
+    distances[${c}]=${idx};
+  done;
 
-idxBoard=0;
-idx=0;
-# Set all entries to blank before loading start board, to ensure every position is defined
-BLANK_SPACE="  ";
-for (( idxBoard=0; 81 - idxBoard; idxBoard++ )); do
-  board[${idxBoard}]="${BLANK_SPACE}";
-done;
-# Load start board
-# Since we always jump one extra space on processing a digram, initialize idxBoard to '-1'
-idxBoard=-1;
-# In case the final "digram" is just the 'dStr' (no starting value in row 9/column 9)
-encodedBoardLenOffset=$(( encodedBoardLen % 2 ));
-# Check if first entry is a number. If it is, it means the first space is filled
-# and the first 'digram' is just the single char value (e.g., '8' instead of '_8').
-firstChar="${encodedBoard:0:1}"
-if [[ "${firstChar}" =~ [1-9] ]]; then
-  encodedBoard="_${encodedBoard}"
-fi
-echoDebug "encodedBoard: '${encodedBoard}' (after checking first entry)"
+  idxBoard=0;
+  idx=0;
+  # Set all entries to blank before loading start board, to ensure every position is defined
+  BLANK_SPACE="  ";
+  for (( idxBoard=0; 81 - idxBoard; idxBoard++ )); do
+    board[${idxBoard}]="${BLANK_SPACE}";
+  done;
+  # Load start board
+  # Since we always jump one extra space on processing a digram, initialize idxBoard to '-1'
+  idxBoard=-1;
+  # In case the final "digram" is just the 'dStr' (no starting value in row 9/column 9)
+  encodedBoardLenOffset=$(( encodedBoardLen % 2 ));
+  # Check if first entry is a number. If it is, it means the first space is filled
+  # and the first 'digram' is just the single char value (e.g., '8' instead of '_8').
+  firstChar="${encodedBoard:0:1}"
+  if [[ "${firstChar}" =~ [1-9] ]]; then
+    encodedBoard="_${encodedBoard}"
+  fi
+  echoDebug "encodedBoard: '${encodedBoard}' (after checking first entry)"
 
-for (( idx=0; encodedBoardLen - idx - encodedBoardLenOffset; idx+=2 )); do
-  digram=${encodedBoard:${idx}:2};
-  dStr=${digram:0:1};
-  echoDebug "dStr: '${dStr}'";
-  d=${distances[${dStr}]};
-  value=${digram:1:1};
-  idxBoard=$((idxBoard + d + 1));
-  board[${idxBoard}]="${value}${START_ENTRY_TYPE}";
-done;
+  for (( idx=0; encodedBoardLen - idx - encodedBoardLenOffset; idx+=2 )); do
+    digram=${encodedBoard:${idx}:2};
+    dStr=${digram:0:1};
+    echoDebug "dStr: '${dStr}'";
+    d=${distances[${dStr}]};
+    value=${digram:1:1};
+    idxBoard=$((idxBoard + d + 1));
+    board[${idxBoard}]="${value}${START_ENTRY_TYPE}";
+  done;
 } # loadBoard
 
 # Print a row/subsquare seperator line if it is time for that.
