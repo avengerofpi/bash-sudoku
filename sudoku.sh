@@ -221,6 +221,11 @@ function loadBoard() {
 
   local encodedBoardLen=${#encodedBoard};
   echoDebug "encodedBoard: '${encodedBoard}'"
+  if [ ${encodedBoardLen} -eq 0 ]; then
+    echoError "Could not fetch a board. Exiting.";
+    exit 1;
+  fi
+
   # Create an array to map the "distance chars" to their distance values
   declare -A distances;
   local distancesStr="_abcdefghijklmnopqrstuvwxyz";
