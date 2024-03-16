@@ -547,15 +547,15 @@ function printInstructions() {
 
 # Main program
 instructionsMove=(
-  "Choose your next move. You may set a value on any blank space or overwrite",
-  "any guess on a non-hint space.  Entries should be input as a 3-digit number, where",
-  "  The 1st digit is the row",
-  "  The 2nd digit is the column",
-  "  The 3rd digit is the value you want to set (or blank or '.' to clear a value)",
-  "Or choose",
-  "  'help'  or 'h' to re-print this message",
-  "  'reset' or 'r' to reset the board",
-  "  'exit'  or 'x' to end the current game"
+  "Choose your next move. You may set a value on any blank space or overwrite         "
+  "any guess on a non-hint space.  Entries should be input as a 3-digit number, where "
+  "  The 1st digit is the row                                                         "
+  "  The 2nd digit is the column                                                      "
+  "  The 3rd digit is the value you want to set (or blank or '.' to clear a value)    "
+  "Or choose                                                                          "
+  "  'help'  or 'h' to re-print this message                                          "
+  "  'reset' or 'r' to reset the board                                                "
+  "  'exit'  or 'x' to end the current game                                           "
 );
 promptMove="Enter your next move: ";
 chooseDifficulty;
