@@ -181,7 +181,7 @@ function chooseDifficulty() {
   if [ ${difficultyChoice} -ge 0 -a ${difficultyChoice} -lt ${numDifficulties} ]; then
     difficulty="${difficulties[${difficultyChoice}]}";
   else
-    difficulty="${difficulties[${difficultyNum}]}";
+    difficulty="${DEFAULT_DIFFICULTY}";
   fi;
   echoDebug "difficulty: ${difficulty}";
 }
