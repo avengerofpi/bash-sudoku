@@ -21,17 +21,17 @@ critical=true;
 #     ' ' for no current value
 # Testing board borrowed from: https://www.puzzle-sudoku.com/?e=MDozMCw2MTAsOTYx
 function initTestBoard() {
-board=(
-  "5s" "  " "  " "  " "  " "  " "  " "7s" "4s"
-  "6s" "1s" "  " "  " "  " "7s" "  " "8s" "  "
-  "  " "  " "8s" "  " "  " "3s" "9s" "  " "  "
-  "  " "5s" "2s" "  " "1s" "  " "  " "  " "  "
-  "  " "  " "  " "8s" "6s" "4s" "  " "  " "  "
-  "  " "  " "  " "  " "5s" "  " "3s" "1s" "  "
-  "  " "  " "1s" "9s" "  " "  " "4s" "  " "  "
-  "  " "9s" "  " "2s" "  " "  " "  " "6s" "7s"
-  "3s" "8s" "  " "  " "  " "  " "  " "  " "2s"
-);
+  board=(
+    "5s" "  " "  " "  " "  " "  " "  " "7s" "4s"
+    "6s" "1s" "  " "  " "  " "7s" "  " "8s" "  "
+    "  " "  " "8s" "  " "  " "3s" "9s" "  " "  "
+    "  " "5s" "2s" "  " "1s" "  " "  " "  " "  "
+    "  " "  " "  " "8s" "6s" "4s" "  " "  " "  "
+    "  " "  " "  " "  " "5s" "  " "3s" "1s" "  "
+    "  " "  " "1s" "9s" "  " "  " "4s" "  " "  "
+    "  " "9s" "  " "2s" "  " "  " "  " "6s" "7s"
+    "3s" "8s" "  " "  " "  " "  " "  " "  " "2s"
+  );
 }
 
 # Initialize an array that will be used to flag bad entries,
@@ -126,12 +126,12 @@ function echoEntry() {
 }
 
 # Logging functions
-function echoDebug()    { if $debug;     then echo -e "${DEBUG_COLOR}DEBUG:"       "${@}${TPUT_RESET}"; fi; }
-function echoInfo()     { if $info;      then echo -e "${INFO_COLOR}INFO:"         "${@}${TPUT_RESET}"; fi; }
-function echoWarn()     { if $warn;      then echo -e "${WARN_COLOR}WARN:"         "${@}${TPUT_RESET}"; fi; }
-function echoError()    { if $error;     then echo -e "${ERROR_COLOR}ERROR:"       "${@}${TPUT_RESET}"; fi; }
-function echoCritical() { if $critical;  then echo -e "${CRITICAL_COLOR}CRITICAL:" "${@}${TPUT_RESET}"; fi; }
-function echoHeader()   {                     echo -e "${HEADER_COLOR}"            "${@}${TPUT_RESET}"; }
+function echoDebug()    { if $debug;     then echo -e "${DEBUG_COLOR}DEBUG:"       "${*}${TPUT_RESET}"; fi; }
+function echoInfo()     { if $info;      then echo -e "${INFO_COLOR}INFO:"         "${*}${TPUT_RESET}"; fi; }
+function echoWarn()     { if $warn;      then echo -e "${WARN_COLOR}WARN:"         "${*}${TPUT_RESET}"; fi; }
+function echoError()    { if $error;     then echo -e "${ERROR_COLOR}ERROR:"       "${*}${TPUT_RESET}"; fi; }
+function echoCritical() { if $critical;  then echo -e "${CRITICAL_COLOR}CRITICAL:" "${*}${TPUT_RESET}"; fi; }
+function echoHeader()   {                     echo -e "${HEADER_COLOR}"            "${*}${TPUT_RESET}"; }
 
 # Get a random board from https://www.puzzle-sudoku.com
 #baseUrl="https://www.puzzle-sudoku.com/?size=";
@@ -141,7 +141,7 @@ declare -a difficulties;
 # Difficulties
 difficulties=( "BASIC" "EASY" "INTERMEDIATE" "ADVANCED" "EXTREME" "EVIL" );
 numDifficulties=${#difficulties[@]};
-# difficultyToSizeMap
+# difficultyToSizeMap ("size" is the var in the REST API call)
 difficultyToSizeMap["BASIC"]="0";
 difficultyToSizeMap["EASY"]="1";
 difficultyToSizeMap["INTERMEDIATE"]="2";
@@ -176,10 +176,10 @@ function printDifficultyPrompt() {
 function chooseDifficulty() {
   printDifficultyPrompt;
   promptDifficulty="Choose your difficulty: ";
-  read -p "${promptDifficulty}" difficultyNum;
+  read -p "${promptDifficulty}" difficultyChoice;
 
-  if [ ${difficultyNum} -ge 0 -a ${difficultyNum} -lt ${numDifficulties} ]; then
-    difficulty="${difficulties[${difficultyNum}]}";
+  if [ ${difficultyChoice} -ge 0 -a ${difficultyChoice} -lt ${numDifficulties} ]; then
+    difficulty="${difficulties[${difficultyChoice}]}";
   else
     difficulty="${difficulties[${difficultyNum}]}";
   fi;
