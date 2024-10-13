@@ -198,8 +198,9 @@ function chooseBoardNumber() {
   loadBoard;
 }
 
-unset board;
-declare -a board;
+unset board boardHistory;
+declare -i BOARD_LEN=81
+declare -a board boardHistory;
 function loadBoard() {
   local boardSize=${difficultyToSizeMap[${difficulty}]};
   local dataRaw="specific=1&size=${boardSize}&specid=${boardNumber}";
@@ -266,7 +267,13 @@ function loadBoard() {
     idxBoard=$((idxBoard + d + 1));
     board[${idxBoard}]="${value}${START_ENTRY_TYPE}";
   done;
+
+  boardHistory=("${board[@]}")
 } # loadBoard
+
+function boardHistoryInit() { boardHistory=("${board[@]}"); }
+function boardHistoryAdd() { boardHistory+=("${board[@]}"); }
+function boardHistoryRemove() { boardHistory=("${boardHistory[@]:0:$((${#boardHistory[@]}-BOARD_LEN))}"); }
 
 # Print a row/subsquare seperator line if it is time for that.
 function echoSeperatorLine() {
@@ -488,6 +495,7 @@ function processMove() {
   if [ "${move}" == 'reset' -o "${move}" == "r" ]; then
     echo "Reseting the board to its starting state.";
     resetBoard;
+    boardHistoryInit;
     return;
   fi
 
@@ -495,6 +503,19 @@ function processMove() {
   if [ "${move}" == 'exit' -o "${move}" == "e" ]; then
     echo "Ending the game early.";
     exit 0;
+  fi
+
+  # If move is 'undo' then undo the last move
+  if [ "${move}" == 'undo' -o "${move}" == "u" ]; then
+    if [ "${#boardHistory[@]}" -le ${BOARD_LEN} ]; then
+      echo "Cannot undo until a move has been made";
+      return;
+    fi
+
+    echo "Undoing the last move";
+    boardHistoryRemove;
+    board=("${boardHistory[@]:$((${#boardHistory[@]}-BOARD_LEN)):${#boardHistory[@]}}")
+    return;
   fi
 
   # Exit function if the move was invalid
@@ -522,6 +543,7 @@ function processMove() {
   case ${existingEntryType} in
     ${GUESS_ENTRY_TYPE} | ${BLANK_ENTRY_TYPE})
       board[index]=${newEntry};
+      boardHistoryAdd;
       echo;
       ;;
     ${START_ENTRY_TYPE})
@@ -556,20 +578,25 @@ instructionsMove=(
   "  'help'  or 'h' to re-print this message                                          "
   "  'reset' or 'r' to reset the board                                                "
   "  'exit'  or 'x' to end the current game                                           "
+  "  'undo'  or 'u' to undo the most recent move                                      "
 );
 promptMove="Enter your next move: ";
-chooseDifficulty;
-chooseBoardNumber;
-solved=false;
-printInstructions;
-while ! ${solved}; do
-  printBoard;
-  clearExtraEntryFormatting;
-  read -p "${promptMove}" move;
-  processMove;
-  checkBoardCompletion;
-done;
+
+function newGame() {
+  chooseDifficulty;
+  chooseBoardNumber;
+  solved=false;
+  printInstructions;
+  while ! ${solved}; do
+    printBoard;
+    clearExtraEntryFormatting;
+    read -p "${promptMove}" move;
+    processMove;
+    checkBoardCompletion;
+  done;
+}
 
 # Game over
-printBoard
+newGame;
+printBoard;
 echo "GAME COMPLETED!";
