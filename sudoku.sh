@@ -491,18 +491,24 @@ function processMove() {
     return;
   fi
 
+  # If move is 'new' then end the game
+  if [ "${move}" == 'new' -o "${move}" == "n" ]; then
+    echo "Starting new game.";
+    newGame;
+  fi
+
+  # If move is 'quit' then end the game
+  if [ "${move}" == 'quit' -o "${move}" == "q" ]; then
+    echo "Ending the game early.";
+    exit 0;
+  fi
+
   # If move is 'reset' then reset the board to starting state (remove all guesses)
   if [ "${move}" == 'reset' -o "${move}" == "r" ]; then
     echo "Reseting the board to its starting state.";
     resetBoard;
     boardHistoryInit;
     return;
-  fi
-
-  # If move is 'exit' then end the game
-  if [ "${move}" == 'exit' -o "${move}" == "e" ]; then
-    echo "Ending the game early.";
-    exit 0;
   fi
 
   # If move is 'undo' then undo the last move
@@ -576,8 +582,9 @@ instructionsMove=(
   "  The 3rd digit is the value you want to set (or blank or '.' to clear a value)    "
   "Or choose                                                                          "
   "  'help'  or 'h' to re-print this message                                          "
+  "  'new'   or 'n' to end the current game and start a new one                       "
+  "  'quit'  or 'q' to end the current game                                           "
   "  'reset' or 'r' to reset the board                                                "
-  "  'exit'  or 'x' to end the current game                                           "
   "  'undo'  or 'u' to undo the most recent move                                      "
 );
 promptMove="Enter your next move: ";
